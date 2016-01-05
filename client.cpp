@@ -7,7 +7,7 @@
 #define command "clear"
 #include<errno.h>
 #include<string.h>
-#include<cstdlib.h>
+#include<cstdlib>
 #include<cerrno>
 #include<arpa/inet.h>
 #include<iostream>
@@ -18,7 +18,7 @@ using namespace std;
 #define BIG_SIZE 1024
 #define SMALL_SIZE 50
 
-int int main(int argc, char const *argv[])
+int main(int argc, char const *argv[])
 {
 	if(argc!=4)
 	{
@@ -30,7 +30,7 @@ int int main(int argc, char const *argv[])
 	int target,ret;
 	register int bytes,sockfd;
 
-	struct sockaddr_in_sin sin;
+	struct sockaddr_in sin;
 
 	strcpy(file,argv[3]);
 
@@ -54,7 +54,7 @@ int int main(int argc, char const *argv[])
 		exit(3);
 	}
 
-	memset(buf,"%s_%s","receive",file);
+	sprintf(buf,"%s_%s","receive",file);
 
 	if((target=open(file,O_WRONLY|O_CREAT|O_TRUNC,0644))<0)
 	{
