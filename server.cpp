@@ -39,10 +39,7 @@ int main(int argc, char* argv[])
         printf("listen socket error: %s(errno: %d)\n",strerror(errno),errno);
         exit(0);
     }
-    printf("======waiting for client's request======\n");
-    while(1){
-        
-        if( (cmd_fd = accept(socket_fd, (struct sockaddr*)NULL, NULL)) == -1){
+     if( (cmd_fd = accept(socket_fd, (struct sockaddr*)NULL, NULL)) == -1){
             printf("accept socket error: %s(errno: %d)",strerror(errno),errno);
             continue;
         }
@@ -61,6 +58,10 @@ int main(int argc, char* argv[])
         printf("bind socket error: %s(errno: %d)\n",strerror(errno),errno);
         exit(0);
     }
+    printf("======waiting for client's request======\n");
+    while(1){
+        
+       
         if( listen(socket_data, 10) == -1){
             printf("listen socket error: %s(errno: %d)\n",strerror(errno),errno);
             exit(0);

@@ -103,7 +103,7 @@ int main(int argc, char const *argv[])
             char* filename = new char[sizeof(argv[4])];
             strcpy(filename, argv[4]);
 		
-//transfer the command through the command port
+            //transfer the command through the command port
 			send(sockfd,cmd,sizeof(cmd),0);//send the command
 			send(sockfd,filename,sizeof(filename),0);
             char status[SMALL_SIZE];
@@ -134,7 +134,7 @@ int main(int argc, char const *argv[])
             close(sockfd);
             exit(3);
  		}
-
+////////////////////PUT//////////////////////////////
     if((strcmp(cmd,"put"))==0)
     {
         char filename[50];
@@ -169,7 +169,100 @@ int main(int argc, char const *argv[])
             close(sockfd);
             exit(3);
  		}
+ //////////////////////CD////////////////////////////
+        if((strcmp(cmd,"cd"))==0)
+    {
+        char dir[50];
+        strcpy(dir,argv[4]);
+        FILE* file;
+        file = fopen(dir,"r");
+        if(!file)
+        {
+            printf("no such file!\n");
+            exit(3);
+        }
+        send(sockfd,dir,sizeof(dir),0);
+        
+        int length;
 
+    }
+        if((strcmp(cmd,"ls"))==0)
+    {
+        char dir[50];
+        strcpy(dir,argv[4]);
+        FILE* file;
+        file = fopen(dir,"r");
+        if(!file)
+        {
+            printf("no such file!\n");
+            exit(3);
+        }
+        send(sockfd,dir,sizeof(dir),0);
+        
+        int length;
+        
+    }
+
+     if((strcmp(cmd,"size"))==0)
+    {
+        char filename[50];
+        strcpy(filename,argv[4]);
+        char status[50];
+
+        send(sockfd,filename,sizeof(filename),0);
+        recv(sockfd,&status,sizeof(status),0);\
+        cout<<status<<endl;
+        if(strcmp(status,"450")==0)
+        {
+            cout<<"no such file!"<<endl;
+            exit(3);
+        }
+        int size;
+        recv(sockdata,&size,sizeof(int),0);
+
+        cout<<filename<<": \t\t\t"<<size<<endl;
+
+        exit(3);  
+    }
+
+       if((strcmp(cmd,"?"))==0)
+    {
+        char dir[50];
+        strcpy(dir,argv[4]);
+        FILE* file;
+        file = fopen(dir,"r");
+        if(!file)
+        {
+            printf("no such file!\n");
+            exit(3);
+        }
+        send(sockfd,dir,sizeof(dir),0);
+        
+        int length;
+        
+    }
+
+
+
+
+
+
+       if((strcmp(cmd,"?"))==0)
+    {
+        char dir[50];
+        strcpy(dir,argv[4]);
+        FILE* file;
+        file = fopen(dir,"r");
+        if(!file)
+        {
+            printf("no such file!\n");
+            exit(3);
+        }
+        send(sockfd,dir,sizeof(dir),0);
+        
+        int length;
+        
+    }
     //Try to connect server to establish the service
 
 
