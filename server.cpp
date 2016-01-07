@@ -6,9 +6,12 @@
 #include<sys/socket.h>
 #include<netinet/in.h>
 #include <unistd.h>
+#include <iostream>
 #define COMMAND_PORT 8000
-#define DATA_PORT 8001
-#define MAXLINE 4096
+#define DATA_PORT "8001"
+#define BIG_SIZE 1024
+#define SMALL_SIZE 50
+using namespace std;
 
 int main(int argc, char* argv[])
 {
@@ -43,7 +46,7 @@ int main(int argc, char* argv[])
             printf("accept socket error: %s(errno: %d)",strerror(errno),errno);
             continue;
         }
-        if((send(cmd_fd,DATA_PORT,2,0)==-1))
+        if((send(cmd_fd,DATA_PORT,sizeof(DATA_PORT),0))==-1)
            {
                perror("failed to send port number");
                exit(0);
@@ -53,7 +56,7 @@ int main(int argc, char* argv[])
         memset(&dataaddr,0,sizeof(dataaddr));
         dataaddr.sin_family = AF_INET;
         dataaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-        dataaddr.sin_port = htons(DATA_PORT);
+        dataaddr.sin_port = htons(atoi(DATA_PORT));
         if( bind(socket_data, (struct sockaddr*)&dataaddr, sizeof(dataaddr)) == -1){
         printf("bind socket error: %s(errno: %d)\n",strerror(errno),errno);
         exit(0);
@@ -65,33 +68,73 @@ int main(int argc, char* argv[])
         
         data_fd = accept(socket_data,(struct sockaddr*)NULL,NULL);
 
-        char* cmd;
-        recv(cmd_fd,&cmd,sizeof(char),0);
-
-        if((strcmp(cmd,"get")
+        char cmd[50];
+        recv(cmd_fd,&cmd,SMALL_SIZE,0);
+        cout<<cmd<<endl;
+        if((strcmp(cmd,"get"))==0)
         {
-            char* filename;
-            recv(cmd_fd,&filename,sizeof(char),0);
+            char filename[50];
+            recv(cmd_fd,&filename,SMALL_SIZE,0);
+            //cout<<filename<<endl;
             FILE* file;
             file = fopen(filename,"r");
             if(!file)
             {
-                send(cmd_fd,450,sizeof(int),0);
+                send(cmd_fd,"450",sizeof("450"),0);
+                printf("no such file!\n");
                 exit(3);
             }
-            int n;
-            do
+
+            int length;
+            while((length = fread(buff, sizeof(char), BIG_SIZE, file)) > 0)
             {
-                fread(buff,sizeof(char),n,file)
-                send(sockdata,&buff,sizeof(buff),0);
-                
-            }while(n<BIG_SIZE);
+                cout<<length<<endl;
+                if(send(data_fd, buff, length, 0) < 0)
+                {
+                    printf("Send File:%s Failed./n", filename);
+                    break;
+                }
+                memset(buff,0, BIG_SIZE);
+            }
+            fclose(file);
+            close(socket_data);
+            close(data_fd);
+            close(cmd_fd);
         }
+        
+        if((strcmp(cmd,"put"))==0)
+        {
+            char filename[50];
+            recv(cmd_fd,&filename,SMALL_SIZE,0);
+            //cout<<filename<<endl;
+            FILE* file;
+            file = fopen(filename,"w");
+            int length;
+            cout<<"hear"<<endl;
+            memset(buff,0,BIG_SIZE);
+            while ((length = recv(data_fd, &buff, BIG_SIZE, 0))>0) {
+                cout<<"Receiving data"<<endl;
+                if(fwrite(buff, sizeof(char), length, file) < length)
+                {
+                    printf("File:\t%s Write Failed\n", filename);
+                    break;
+                }
+                cout<<length<<endl;
+                memset(buff,0,BIG_SIZE);
+                
+            }
+            fclose(file);
+            close(socket_data);
+            close(data_fd);
+            close(cmd_fd);
+        }
+
 
 
         }
       
     close(socket_fd);
+    close(data_fd);
     
     
 }
